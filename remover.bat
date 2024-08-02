@@ -1,14 +1,19 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem Search for potential SSH-related processes or similar applications
+rem Fetch the search patterns from the URL
+set "url=https://raw.githubusercontent.com/LizardRush/SSH-Removal/main/searchfor.txt"
+set "search_patterns="
+
+rem Download the file and read it into the search_patterns variable
+for /f "delims=" %%i in ('curl -s %url%') do (
+    set "search_patterns=!search_patterns! %%i"
+)
+
 set "found_malware="
 
-rem Define patterns for SSH and similar applications
-set "search_patterns=sshd.exe putty.exe openssh.exe ssh-agent.exe"
-
 rem Check for SSH-related processes
-for %%m in (%search_patterns%) do (
+for %%m in (!search_patterns!) do (
     tasklist | findstr /I "%%m" >nul
     if !errorlevel! equ 0 (
         echo Found: %%m
@@ -25,7 +30,7 @@ for %%f in (*.bat *.cmd *.ps1) do (
 if defined found_malware (
     set /p "uninstall=Uninstall these (y/n)? "
     if /i "!uninstall!"=="y" (
-        for %%m in (%search_patterns%) do (
+        for %%m in (!search_patterns!) do (
             taskkill /IM %%m /F >nul 2>&1
             if !errorlevel! neq 0 (
                 echo %%m failed to uninstall, track requests (y/n)?
