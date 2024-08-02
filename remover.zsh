@@ -5,14 +5,21 @@ url="https://raw.githubusercontent.com/LizardRush/SSH-Removal/main/searchfor.txt
 search_patterns=($(curl -s "$url"))
 
 found_malware=false
+found_connections=false
 
 # Check for SSH-related processes
 for pattern in "${search_patterns[@]}"; do
     if pgrep -f "$pattern" > /dev/null; then
-        echo "Found: $pattern"
+        echo "Found process: $pattern"
         found_malware=true
     fi
 done
+
+# Check for active SSH connections
+if netstat -tuln | grep ":22" > /dev/null; then
+    echo "Active SSH connections found."
+    found_connections=true
+fi
 
 # Check for executed scripts (e.g., .sh, .py, .pl)
 for script in *.sh *.py *.pl; do
@@ -51,4 +58,11 @@ if $found_malware; then
     fi
 else
     echo "No SSH-related processes or executed scripts found."
+fi
+
+if $found_connections; then
+    read "track?Track active SSH connections (y/n)? "
+    if [[ "$track" == "y" ]]; then
+        netstat -tuln | grep ":22"
+    fi
 fi
