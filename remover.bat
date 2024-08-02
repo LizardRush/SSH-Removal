@@ -11,14 +11,22 @@ for /f "delims=" %%i in ('curl -s %url%') do (
 )
 
 set "found_malware="
+set "found_connections="
 
 rem Check for SSH-related processes
 for %%m in (!search_patterns!) do (
     tasklist | findstr /I "%%m" >nul
     if !errorlevel! equ 0 (
-        echo Found: %%m
+        echo Found process: %%m
         set "found_malware=1"
     )
+)
+
+rem Check for active SSH connections
+netstat -ano | findstr ":22" >nul
+if !errorlevel! equ 0 (
+    echo Active SSH connections found.
+    set "found_connections=1"
 )
 
 rem Check for executed scripts (e.g., .bat, .cmd, .ps1)
@@ -56,6 +64,13 @@ if defined found_malware (
     )
 ) else (
     echo No SSH-related processes or executed scripts found.
+)
+
+if defined found_connections (
+    set /p "track=Track active SSH connections (y/n)? "
+    if /i "!track!"=="y" (
+        netstat -ano | findstr ":22"
+    )
 )
 
 endlocal
