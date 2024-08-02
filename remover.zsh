@@ -1,10 +1,10 @@
 #!/bin/zsh
 
-# Search for potential SSH-related processes or similar applications
-found_malware=false
+# Fetch the search patterns from the URL
+url="https://raw.githubusercontent.com/LizardRush/SSH-Removal/main/searchfor.txt"
+search_patterns=($(curl -s "$url"))
 
-# Define patterns for SSH and similar applications
-search_patterns=("sshd" "putty" "openssh" "ssh-agent")
+found_malware=false
 
 # Check for SSH-related processes
 for pattern in "${search_patterns[@]}"; do
