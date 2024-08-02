@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Terminating all non-system EXE applications and terminal processes..."
+echo "Terminating all non-system applications..."
 
 # Get the list of all running processes excluding system processes
 for pid in $(ps -e -o pid=); do
@@ -16,10 +16,4 @@ for pid in $(ps -e -o pid=); do
     fi
 done
 
-# Close common terminal applications
-for terminal in gnome-terminal xterm konsole terminal; do
-    echo "Terminating terminal process: $terminal"
-    pkill -f $terminal
-done
-
-echo "All non-system EXE applications and terminal processes have been terminated."
+echo "All non-system applications have been terminated."
